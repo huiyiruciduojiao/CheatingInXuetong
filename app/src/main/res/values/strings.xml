@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">学习通AI智能体</string>
+    <!-- Authentication Parameters -->
+    <string name="authentication_parameters">认证参数</string>
+    <string name="username_title">用户名</string>
+    <string name="password_title">密码</string>
+    <string name="save_button_title">保存</string>
+    <string name="save_button_summary">点击以保存设置</string>
+
+    <!-- Functional Configuration -->
+    <string name="functional_configuration">功能配置</string>
+    <string name="feature_toggle_title">启用辅助</string>
+    <string name="feature_toggle_run_fun">以root权限工作</string>
+    <string name="option_one_title">截屏触发方式</string>
+    <string name="option_two_title">请求题解方式</string>
+    <string name="option_three_title">显示题解方式</string>
+
+    <!-- Default Values -->
+    <string name="default_value">默认值</string>
+</resources>

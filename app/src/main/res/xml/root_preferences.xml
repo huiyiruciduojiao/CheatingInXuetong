@@ -1,0 +1,61 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference app:title="@string/app_name"/>
+
+
+    <PreferenceCategory app:title="@string/authentication_parameters">
+
+        <EditTextPreference
+            app:key="username"
+            app:title="@string/username_title" />
+
+        <EditTextPreference
+            app:dialogTitle="@string/password_title"
+            app:key="password"
+            app:title="@string/password_title" />
+
+        <!--        <Preference-->
+        <!--            app:key="save_button"-->
+        <!--            app:title="@string/save_button_title"-->
+        <!--            app:summary="@string/save_button_summary"-->
+        <!--            app:widgetLayout="@layout/save_button_layout" />-->
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/functional_configuration">
+
+        <SwitchPreferenceCompat
+            app:key="feature_toggle"
+            app:title="@string/feature_toggle_title" />
+        <SwitchPreferenceCompat
+            app:key="feature_toggle_run_fun"
+            app:title="@string/feature_toggle_run_fun"
+        />
+        <ListPreference
+            app:defaultValue="default_value"
+            app:dependency="feature_toggle"
+            app:entries="@array/option_one_entries"
+            app:entryValues="@array/option_one_values"
+            app:key="option_one"
+            app:title="@string/option_one_title" />
+
+        <ListPreference
+            app:defaultValue="default_value"
+            app:dependency="feature_toggle"
+            app:entries="@array/option_two_entries"
+            app:entryValues="@array/option_two_values"
+            app:key="option_two"
+            app:title="@string/option_two_title" />
+
+        <ListPreference
+            app:defaultValue="default_value"
+            app:dependency="feature_toggle"
+            app:entries="@array/option_three_entries"
+            app:entryValues="@array/option_three_values"
+            app:key="option_three"
+            app:title="@string/option_three_title" />
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
