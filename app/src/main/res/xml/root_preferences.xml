@@ -1,17 +1,25 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference app:title=""
+        app:layout="@layout/preference_title"
+        android:title="@string/app_name"
+        />
 
-    <Preference app:title="@string/app_name"/>
+
 
 
     <PreferenceCategory app:title="@string/authentication_parameters">
 
         <EditTextPreference
+            app:icon="@drawable/ic_user"
             app:key="username"
             app:title="@string/username_title" />
+
 
         <EditTextPreference
             app:dialogTitle="@string/password_title"
             app:key="password"
+            app:icon="@drawable/ic_pass"
             app:title="@string/password_title" />
 
         <!--        <Preference-->
@@ -26,18 +34,21 @@
 
         <SwitchPreferenceCompat
             app:key="feature_toggle"
-            app:title="@string/feature_toggle_title" />
+            app:title="@string/feature_toggle_title"
+            app:icon="@drawable/ic_activateauxiliary"/>
         <SwitchPreferenceCompat
             app:key="feature_toggle_run_fun"
             app:title="@string/feature_toggle_run_fun"
-        />
+            app:icon="@drawable/ic_rootjurisdiction"/>
         <ListPreference
             app:defaultValue="default_value"
             app:dependency="feature_toggle"
             app:entries="@array/option_one_entries"
             app:entryValues="@array/option_one_values"
             app:key="option_one"
-            app:title="@string/option_one_title" />
+            app:title="@string/option_one_title"
+            app:icon="@drawable/ic_screenshot"
+            />
 
         <ListPreference
             app:defaultValue="default_value"
@@ -45,7 +56,9 @@
             app:entries="@array/option_two_entries"
             app:entryValues="@array/option_two_values"
             app:key="option_two"
-            app:title="@string/option_two_title" />
+            app:title="@string/option_two_title"
+            app:icon="@drawable/ic_request"
+            />
 
         <ListPreference
             app:defaultValue="default_value"
@@ -53,9 +66,48 @@
             app:entries="@array/option_three_entries"
             app:entryValues="@array/option_three_values"
             app:key="option_three"
-            app:title="@string/option_three_title" />
+            app:title="@string/option_three_title"
+            app:icon="@drawable/ic_showfun"/>
 
     </PreferenceCategory>
+    <!--    关于我们-->
+    <PreferenceCategory app:title="@string/about_us">
+
+        <Preference
+            app:key="about_us"
+            app:summary="@string/development_information"
+            app:title="@string/about_us_title"
+            app:icon="@drawable/ic_developmentinformation"/>
+
+        <Preference
+            app:key="home_url"
+            app:summary="@string/home_url_summary"
+            app:title="@string/home_url_title"
+            app:icon="@drawable/ic_home"/>
+        <!--        github地址-->
+        <Preference
+            app:key="github_url"
+            app:summary="@string/github_url"
+            app:title="@string/github_url_title"
+            app:icon="@drawable/ic_github"
+            />
+        <Preference
+            app:key="sponsorship_development"
+            app:summary="@string/sponsorship_development_summary"
+            app:title="@string/sponsorship_development_title"
+            app:icon="@drawable/ic_sponsor"/>
+    </PreferenceCategory>
+    <!--    版本信息-->
+    <PreferenceCategory app:title="@string/version_information">
+
+        <Preference
+            app:key="version_information"
+            app:summary="@string/app_version"
+            app:title="@string/app_name" />
+
+    </PreferenceCategory>
+
+
 
 
 </PreferenceScreen>

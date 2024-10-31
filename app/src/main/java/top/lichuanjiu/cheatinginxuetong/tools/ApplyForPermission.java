@@ -1,30 +1,46 @@
 package top.lichuanjiu.cheatinginxuetong.tools;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationManagerCompat;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 
 public class ApplyForPermission {
-    public ApplyForPermission(Context context,Activity activity){
+    public ApplyForPermission(Context context, Activity activity) {
         //申请悬浮窗权限
         if (!isOverlayPermission(context)) {
-            jumpToPermission(context);
+            //弹窗提示用户是否授权
+            showAuthorizationDialog(context, "请授予悬浮窗权限？拒绝授权将退出程序！", () -> {
+                jumpToPermission(context);
+            }, this::onUserRefused);
+
         }
 
         //申请通知栏权限
-        if(!isNotificationEnabled(context)){
-            openPush(activity);
+        if (!isNotificationEnabled(context)) {
+            showAuthorizationDialog(context, "请授予通知栏权限？拒绝授权将退出程序！", () -> {
+                openPush(activity);
+            }, this::onUserRefused);
         }
         //申请通知管理权限
-        if(!NotificationManagerCompat.getEnabledListenerPackages(context).contains(context.getPackageName())){
-            applyForNoticeManagerPermission(context);
+        if (!NotificationManagerCompat.getEnabledListenerPackages(context).contains(context.getPackageName())) {
+
+            showAuthorizationDialog(context, "请授予通知管理权限？拒绝授权将退出程序！", () -> {
+                applyForNoticeManagerPermission(context);
+            }, this::onUserRefused);
         }
 
         //申请辅助功能权限
@@ -32,6 +48,7 @@ public class ApplyForPermission {
 
 
     }
+
     public static boolean isOverlayPermission(Context context) {
         // 判断是否有悬浮窗权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -54,8 +71,10 @@ public class ApplyForPermission {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
+
     /**
      * 是否打开通知按钮
+     *
      * @param context
      * @return
      */
@@ -75,7 +94,6 @@ public class ApplyForPermission {
             toPermissionSetting(activity);
         }
     }
-
 
     /**
      * 跳转到权限设置
@@ -121,23 +139,73 @@ public class ApplyForPermission {
             e.printStackTrace();
         }
     }
-    public static void applyForNoticeManagerPermission(Context context){
-            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-            context.startActivity(intent);
+
+    public static void applyForNoticeManagerPermission(Context context) {
+        Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+        context.startActivity(intent);
 
     }
+
     //申请通知栏权限
-    public static boolean applyForNotificationPermission(Context context){
+    public static boolean applyForNotificationPermission(Context context) {
         return false;
     }
+
     //申请辅助功能权限
-    public static boolean applyForAccessibilityPermission(Context context){
+    public static boolean applyForAccessibilityPermission(Context context) {
         return false;
     }
-    public static boolean applyForRootPermission(Context context){
+
+    public static boolean applyForRootPermission(Context context) {
         return false;
     }
-    public static boolean isRoot(){
+
+    public static boolean isRoot() {
+        Process process = null;
+        try {
+            process = Runtime.getRuntime().exec(new String[]{"which", "su"});
+            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            if (in.readLine() != null) {
+                Log.d("root", "root 权限检查成功！");
+                return true;
+            }else {
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if(process != null){
+                process.destroy();
+            }
+        }
         return false;
+    }
+
+    private void showAuthorizationDialog(Context context, String msg, Runnable onUserAgreed, Runnable onUserRefused) {
+        new AlertDialog.Builder(context)
+                .setTitle("授权请求")
+                .setMessage(msg)
+                .setPositiveButton("同意", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 用户点击了“同意”
+                        onUserAgreed.run();
+                    }
+                })
+                .setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 用户点击了“拒绝”
+                        onUserRefused.run();
+                    }
+                })
+                .show();
+    }
+
+    private void onUserRefused() {
+        System.exit(-1);
+    }
+
+    public enum PrivilegeLevel{
+        USER,
+        ROOT
     }
 }

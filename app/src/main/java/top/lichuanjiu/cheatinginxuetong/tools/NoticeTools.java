@@ -26,13 +26,12 @@ public class NoticeTools {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                     channelId,
-                    "Channel Name",
+                    "服务通知",
                     NotificationManager.IMPORTANCE_DEFAULT
             );
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
-
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(1000, builder.build());
@@ -43,15 +42,22 @@ public class NoticeTools {
     private void buildNotification(Context context) {
         //创建Intent对象，用于打开执行自定义操作
         Intent actionIntent = new Intent(context, NoticeOperationProcessingService.class);
+        Intent actionIntent2 = new Intent(context, NoticeOperationProcessingService.class);
+        actionIntent.setAction("ACTION_SCREENSHOT");
+        actionIntent2.setAction("ACTION_SEND");
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, actionIntent, PendingIntent.FLAG_IMMUTABLE);
 
+        PendingIntent pendingIntent2 = PendingIntent.getService(context, 0, actionIntent2, PendingIntent.FLAG_IMMUTABLE);
+
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.ic_launcher_background) // 通知图标
-                .setContentTitle("通知标题")
-                .setContentText("这是通知内容")
+                .setSmallIcon(R.mipmap.ic_launcher) // 通知图标
+                .setContentTitle("学习通AI智能体服务")
+                .setContentText("点击下方按钮可以执行操作，请不要清除本通知！")
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
-                .addAction(R.drawable.ic_launcher_background, "截图", pendingIntent)
+                .addAction(R.mipmap.ic_launcher, "截图", pendingIntent)
+                .addAction(R.mipmap.ic_launcher,"发送",pendingIntent2)
                 .setPriority(NotificationCompat.PRIORITY_HIGH); // 设置优先级
         this.builder = builder;
     }

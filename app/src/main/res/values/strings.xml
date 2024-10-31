@@ -17,4 +17,17 @@
 
     <!-- Default Values -->
     <string name="default_value">默认值</string>
+    <string name="about_us">关于我们</string>
+    <string name="about_us_title">开发信息</string>
+    <string name="development_information">IT资源网-易识IT-李传玖开发</string>
+    <string name="home_url_title">官方网站</string>
+    <string name="home_url_summary">https://itziyuanwang.top</string>
+    <string name="sponsorship_development_title">赞助开发</string>
+    <string name="sponsorship_development_summary">点击请作者喝杯咖啡</string>
+    <string name="version_information">版本信息</string>
+    <string name="app_version">1.0.0.1</string>
+    <string name="home_url">https://www.itziyuanwang.top/</string>
+    <string name="github_url_title">Github地址</string>
+    <string name="github_url">https://github.com/huiyiruciduojiao/CheatingInXuetong</string>
+    <string name="sponsorship_development_url">https://www.itziyuanwang.top/supportOur.php</string>
 </resources>

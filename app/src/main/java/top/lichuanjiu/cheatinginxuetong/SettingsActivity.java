@@ -1,9 +1,11 @@
 package top.lichuanjiu.cheatinginxuetong;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -15,7 +17,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -23,7 +24,6 @@ import top.lichuanjiu.cheatinginxuetong.Service.MyNotificationListenerService;
 import top.lichuanjiu.cheatinginxuetong.Service.NoticeForegroundService;
 import top.lichuanjiu.cheatinginxuetong.Service.NoticeOperationProcessingService;
 import top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission;
-import top.lichuanjiu.cheatinginxuetong.tools.NoticeTools;
 
 public class SettingsActivity extends AppCompatActivity {
     public Intent foregroundIntent = null;
@@ -42,8 +42,10 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-
+        toggleNotificationListenerService();
         instance = this;
+        new ApplyForPermission(this, this);
+
         Intent noticeListenerIntent = new Intent(this, MyNotificationListenerService.class);
         startService(noticeListenerIntent);
 
@@ -53,7 +55,6 @@ public class SettingsActivity extends AppCompatActivity {
         Intent noticeIntent = new Intent(this, NoticeOperationProcessingService.class);
         startService(noticeIntent);
 
-        new ApplyForPermission(this, this);
 
 
         if(foregroundIntent != null){
@@ -65,6 +66,11 @@ public class SettingsActivity extends AppCompatActivity {
 
         //监听事件
 
+    }
+    private void toggleNotificationListenerService() {
+        PackageManager pm = getPackageManager();
+        pm.setComponentEnabledSetting(new ComponentName(this, top.lichuanjiu.cheatinginxuetong.Service.MyNotificationListenerService.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        pm.setComponentEnabledSetting(new ComponentName(this, top.lichuanjiu.cheatinginxuetong.Service.MyNotificationListenerService.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
     }
     //监听按钮事件
     public void restartForegroundIntent(){
@@ -162,7 +168,41 @@ public class SettingsActivity extends AppCompatActivity {
                                 ? "未选择显示题解方式"
                                 : optionThreePref.getEntry());
             }
+            //关于我们点击事件
+            Preference aboutUsPref = findPreference("home_url");
+            if (aboutUsPref != null) {
+                aboutUsPref.setOnPreferenceClickListener(preference -> {
+                    //打开网页
+                    SettingsActivity.instance.openWeb(getString(R.string.home_url));
+                   return true;
+                });
+            }
+            //点击github地址事件
+            Preference githubPref = findPreference("github_url");
+            if(githubPref != null){
+                githubPref.setOnPreferenceClickListener(preference -> {
+                    //打开网页
+                    SettingsActivity.instance.openWeb(getString(R.string.github_url));
+                    return true;
+                });
+            }
+            //点击赞助开发事件
+            Preference sponsorPref = findPreference("sponsorship_development");
+            if(sponsorPref != null){
+                sponsorPref.setOnPreferenceClickListener(preference -> {
+                    SettingsActivity.instance.openWeb(getString(R.string.sponsorship_development_url));
+                    return true;
+                });
+            }
+
 
         }
+    }
+    private void openWeb(String url){
+        Intent intent = new Intent();
+        intent.setAction("android.intent.action.VIEW");
+        Uri uri = Uri.parse(url);
+        intent.setData(uri);
+        startActivity(intent);
     }
 }
