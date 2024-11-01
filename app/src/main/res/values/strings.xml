@@ -30,4 +30,5 @@
     <string name="github_url_title">Github地址</string>
     <string name="github_url">https://github.com/huiyiruciduojiao/CheatingInXuetong</string>
     <string name="sponsorship_development_url">https://www.itziyuanwang.top/supportOur.php</string>
+    <string name="accessibility_desc">学习通AI智能体的基础服务，用于截屏以及监听截屏触发事件</string>
 </resources>

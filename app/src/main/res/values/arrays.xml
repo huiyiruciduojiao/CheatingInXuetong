@@ -34,4 +34,7 @@
         <item>value_three_b</item>
         <item>value_three_c</item>
     </string-array>
+    <string-array name="xposedscope">
+        <item>android</item>
+    </string-array>
 </resources>

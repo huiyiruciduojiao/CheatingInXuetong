@@ -10,8 +10,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 
 import top.lichuanjiu.cheatinginxuetong.R;
-import top.lichuanjiu.cheatinginxuetong.Service.NoticeForegroundService;
-import top.lichuanjiu.cheatinginxuetong.Service.NoticeOperationProcessingService;
+import top.lichuanjiu.cheatinginxuetong.service.NoticeOperationProcessingService;
 
 public class NoticeTools {
     public NotificationCompat.Builder builder = null;

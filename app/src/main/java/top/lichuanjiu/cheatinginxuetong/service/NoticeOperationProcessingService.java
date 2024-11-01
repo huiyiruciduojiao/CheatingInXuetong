@@ -1,4 +1,4 @@
-package top.lichuanjiu.cheatinginxuetong.Service;
+package top.lichuanjiu.cheatinginxuetong.service;
 
 import android.app.Service;
 import android.content.Intent;
@@ -7,8 +7,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-
-import java.io.IOException;
 
 import top.lichuanjiu.cheatinginxuetong.SettingsActivity;
 import top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission;
@@ -55,6 +53,7 @@ public class NoticeOperationProcessingService extends Service {
     }
     private void closeNotificationBarRoot(){
         if(ApplyForPermission.isRoot()){
+            Log.d("NoticeOperationProcessingService", "root closeNotificationBar");
             SuCommandTools.asyncSuCommand("service call statusbar 2");
         }else{
             throw new RuntimeException("没有root权限，无法执行root命令");

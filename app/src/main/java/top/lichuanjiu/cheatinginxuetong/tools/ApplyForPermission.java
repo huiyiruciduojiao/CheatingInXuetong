@@ -1,7 +1,9 @@
 package top.lichuanjiu.cheatinginxuetong.tools;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,7 +11,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.core.app.NotificationManagerCompat;
 
@@ -17,6 +18,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.util.List;
+
+import top.lichuanjiu.cheatinginxuetong.service.MyAccessibilityService;
 
 public class ApplyForPermission {
     public ApplyForPermission(Context context, Activity activity) {
@@ -25,7 +29,7 @@ public class ApplyForPermission {
             //弹窗提示用户是否授权
             showAuthorizationDialog(context, "请授予悬浮窗权限？拒绝授权将退出程序！", () -> {
                 jumpToPermission(context);
-            }, this::onUserRefused);
+            }, ApplyForPermission::onUserRefused);
 
         }
 
@@ -33,14 +37,14 @@ public class ApplyForPermission {
         if (!isNotificationEnabled(context)) {
             showAuthorizationDialog(context, "请授予通知栏权限？拒绝授权将退出程序！", () -> {
                 openPush(activity);
-            }, this::onUserRefused);
+            }, ApplyForPermission::onUserRefused);
         }
         //申请通知管理权限
         if (!NotificationManagerCompat.getEnabledListenerPackages(context).contains(context.getPackageName())) {
 
             showAuthorizationDialog(context, "请授予通知管理权限？拒绝授权将退出程序！", () -> {
                 applyForNoticeManagerPermission(context);
-            }, this::onUserRefused);
+            }, ApplyForPermission::onUserRefused);
         }
 
         //申请辅助功能权限
@@ -152,7 +156,30 @@ public class ApplyForPermission {
     }
 
     //申请辅助功能权限
-    public static boolean applyForAccessibilityPermission(Context context) {
+    public static void applyForAccessibilityPermission(Context context) {
+        if (isAccessibilityServiceEnabled(context, MyAccessibilityService.class.getName())) {
+            return;
+        }
+        showAuthorizationDialog(context, "请授予辅助功能权限？拒绝授权将退出程序！", () -> {
+            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            context.startActivity(intent);
+
+        }, ApplyForPermission::onUserRefused);
+    }
+
+    public static boolean isAccessibilityServiceEnabled(Context context, String className) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo>
+                runningServices = activityManager.getRunningServices(100);
+        if (runningServices.size() < 0) {
+            return false;
+        }
+        for (int i = 0; i < runningServices.size(); i++) {
+            ComponentName service = runningServices.get(i).service;
+            if (service.getClassName().contains(className)) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -168,20 +195,20 @@ public class ApplyForPermission {
             if (in.readLine() != null) {
                 Log.d("root", "root 权限检查成功！");
                 return true;
-            }else {
+            } else {
                 return false;
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            if(process != null){
+        } finally {
+            if (process != null) {
                 process.destroy();
             }
         }
         return false;
     }
 
-    private void showAuthorizationDialog(Context context, String msg, Runnable onUserAgreed, Runnable onUserRefused) {
+    private static void showAuthorizationDialog(Context context, String msg, Runnable onUserAgreed, Runnable onUserRefused) {
         new AlertDialog.Builder(context)
                 .setTitle("授权请求")
                 .setMessage(msg)
@@ -200,11 +227,11 @@ public class ApplyForPermission {
                 .show();
     }
 
-    private void onUserRefused() {
+    private static void onUserRefused() {
         System.exit(-1);
     }
 
-    public enum PrivilegeLevel{
+    public enum PrivilegeLevel {
         USER,
         ROOT
     }

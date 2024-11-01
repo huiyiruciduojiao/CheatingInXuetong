@@ -1,4 +1,4 @@
-package top.lichuanjiu.cheatinginxuetong.Service;
+package top.lichuanjiu.cheatinginxuetong.service;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
