@@ -37,7 +37,7 @@ public class NoticeOperationProcessingService extends Service {
                     closeNotificationBar(ApplyForPermission.PrivilegeLevel.ROOT);
                 }
                 ScreenshotTools screenshotTools = new ScreenshotTools(SettingsActivity.instance);
-                screenshotTools.startScreenshot(ApplyForPermission.PrivilegeLevel.ROOT,500);
+                screenshotTools.startScreenshot(ApplyForPermission.isRootRun(),500);
             } else if ("ACTION_SEND".equals(action)) {
                 // 执行发送操作
                 Log.d("NoticeOperationProcessingService", "ACTION_SEND");

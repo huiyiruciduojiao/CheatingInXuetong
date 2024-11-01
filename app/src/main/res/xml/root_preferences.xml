@@ -28,6 +28,15 @@
         <!--            app:summary="@string/save_button_summary"-->
         <!--            app:widgetLayout="@layout/save_button_layout" />-->
 
+        <EditTextPreference
+            app:key="server_base_url_input"
+            app:title="@string/server_base_url_title"
+            app:icon="@drawable/ic_github" />
+        <Preference
+            app:key="authenticationBtn"
+            app:title="@string/authentication_title"
+            app:summary="@string/authentication_summary"
+            app:icon="@drawable/ic_sponsor" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/functional_configuration">

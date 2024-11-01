@@ -5,6 +5,8 @@ import android.util.Log;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import top.lichuanjiu.cheatinginxuetong.service.FloatWindowService;
+
 public class SuCommandTools {
     public static void suCommand(String command) {
         Process process = null;
@@ -19,10 +21,9 @@ public class SuCommandTools {
             dos.close();
 
 
-
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if (process != null) {
                 try {
                     Thread.sleep(1000);
@@ -30,6 +31,9 @@ public class SuCommandTools {
                     e.printStackTrace();
                 }
                 process.destroy();
+                if (FloatWindowService.instance != null) {
+                    FloatWindowService.instance.show();
+                }
             }
         }
     }

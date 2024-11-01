@@ -17,12 +17,15 @@ public class KeyDUEventReceive extends BroadcastReceiver {
         if (action.equals("top.lichuanjiu.cheatinginxuetong.DUKeyEvent")) {
             Log.i("DUKeyEvent", "DUKeyEvent");
             long eventTime = intent.getLongExtra("eventTime", 0);
-            if (eventTime -lastEventTime > 300) {
+            Log.d("eventTime", "" + eventTime);
+            Log.d("lastEventTime", "" + lastEventTime);
+            if (eventTime -lastEventTime < 300) {
                 return;
             }
+            Log.i("DUKeyEvent", "DUKeyEvent1");
             lastEventTime = eventTime;
+            FloatWindowService.instance.hide();
             SuCommandTools.asyncSuCommand("screencap -p " + SettingsActivity.absPath + "/screenshot.png");
-
         }
 
     }

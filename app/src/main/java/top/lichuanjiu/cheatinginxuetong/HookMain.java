@@ -74,8 +74,8 @@ public class HookMain implements IXposedHookLoadPackage {
         if (Math.abs(downTime[0] - downTime[1]) > 40) {
             return false;
         }
-        //将数组初始化
         lastDownTime = Math.max(downTime[0], downTime[1]);
+        //将数组初始化
         downTime[0] = 0;
         downTime[1] = 0;
         return true;

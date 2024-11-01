@@ -9,6 +9,10 @@
     <!-- 添加 FOREGROUND_SERVICE 权限 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <!--    网络通信权限-->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -48,6 +52,7 @@
 
         <service android:name=".service.NoticeOperationProcessingService" />
         <service android:name=".service.NoticeForegroundService" />
+        <service android:name=".service.FloatWindowService" />
         <!--        通知监听服务-->
         <service
             android:name=".service.MyNotificationListenerService"
@@ -71,7 +76,8 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
         <!--注册广播接受-->
-        <receiver android:name=".service.KeyDUEventReceive"
+        <receiver
+            android:name=".service.KeyDUEventReceive"
             android:exported="true">
             <intent-filter>
                 <action android:name="top.lichuanjiu.cheatinginxuetong.DUKeyEvent" />

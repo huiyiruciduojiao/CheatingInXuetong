@@ -31,4 +31,8 @@
     <string name="github_url">https://github.com/huiyiruciduojiao/CheatingInXuetong</string>
     <string name="sponsorship_development_url">https://www.itziyuanwang.top/supportOur.php</string>
     <string name="accessibility_desc">学习通AI智能体的基础服务，用于截屏以及监听截屏触发事件</string>
+    <string name="float_window_defluat">还没有题解内容哦！</string>
+    <string name="server_base_url_title">服务器基地址</string>
+    <string name="authentication_title">验证连接</string>
+    <string name="authentication_summary">点击来验证与服务器的连接</string>
 </resources>

@@ -1,5 +1,7 @@
 package top.lichuanjiu.cheatinginxuetong;
 
+import static top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission.jumpToPermission;
+
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,16 +22,21 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import top.lichuanjiu.cheatinginxuetong.service.FloatWindowService;
 import top.lichuanjiu.cheatinginxuetong.service.MyNotificationListenerService;
 import top.lichuanjiu.cheatinginxuetong.service.NoticeForegroundService;
 import top.lichuanjiu.cheatinginxuetong.service.NoticeOperationProcessingService;
 import top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission;
+import top.lichuanjiu.cheatinginxuetong.tools.ConnectedService;
 
 public class SettingsActivity extends AppCompatActivity {
     public static SettingsActivity instance = null;
     public static SettingsFragment settingsFragment = null;
-    public Intent foregroundIntent = null;
     public static String absPath = null;
+    public Intent foregroundIntent = null;
+    public Intent floatWindowService = null;
+
+    public ConnectedService cService = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
         absPath = getFilesDir().getAbsolutePath();
-
+        floatWindowService = new Intent(this, FloatWindowService.class);
 
         toggleNotificationListenerService();
         instance = this;
@@ -66,27 +73,64 @@ public class SettingsActivity extends AppCompatActivity {
         foregroundIntent = new Intent(this, NoticeForegroundService.class);
         startService(foregroundIntent);
 
+        startFloatingWindow();
+
+        cService = new ConnectedService();
 
     }
 
-    private ApplyForPermission.PrivilegeLevel checkRunMode() {
+    public ApplyForPermission.PrivilegeLevel checkRunMode() {
         SwitchPreferenceCompat runModePref = settingsFragment.findPreference("feature_toggle_run_fun");
-        if(runModePref == null){
+        if (runModePref == null) {
             return ApplyForPermission.PrivilegeLevel.USER;
         }
-        if(ApplyForPermission.isRoot() && runModePref.isChecked()){
+        if (ApplyForPermission.isRoot() && runModePref.isChecked()) {
             return ApplyForPermission.PrivilegeLevel.ROOT;
         }
         return ApplyForPermission.PrivilegeLevel.USER;
 
     }
-    private boolean isUse(){
-       SwitchPreferenceCompat runModePref = settingsFragment.findPreference("feature_toggle");
-       if(runModePref == null){
-           return false;
-       }
-       return runModePref.isChecked();
+
+    private boolean isUse() {
+        SwitchPreferenceCompat runModePref = settingsFragment.findPreference("feature_toggle");
+        if (runModePref == null) {
+            return false;
+        }
+        return runModePref.isChecked();
     }
+
+    /***
+     * 启动悬浮窗服务
+     */
+    public void startFloatingWindow() {
+        //检测悬浮窗权限
+        if (ApplyForPermission.isOverlayPermission(this)) {
+            if(floatWindowService == null){
+                floatWindowService = new Intent(this, FloatWindowService.class);
+            }
+
+            startService(floatWindowService);
+        } else {
+            ApplyForPermission.showAuthorizationDialog(this, "请授予悬浮窗权限？拒绝授权将退出程序！", () -> {
+                jumpToPermission(this);
+            }, ApplyForPermission::onUserRefused);
+        }
+    }
+
+    //关闭悬浮窗
+    public void closeFloatingWindow() {
+        stopService(floatWindowService);
+    }
+
+    //暂时隐藏悬浮窗
+    public void hideFloatingWindow() {
+        FloatWindowService.instance.hide();
+    }
+    //显示悬浮窗
+    public void showFloatWindow() {
+        FloatWindowService.instance.show();
+    }
+
 
     private void toggleNotificationListenerService() {
         PackageManager pm = getPackageManager();
@@ -138,9 +182,37 @@ public class SettingsActivity extends AppCompatActivity {
                                 : "已填写密码");
             }
 
-            SwitchPreferenceCompat runfuncPref = findPreference("feature_toggle_run_fun");
-            if (runfuncPref != null) {
-                runfuncPref.setOnPreferenceChangeListener((preference, newValue) -> {
+            EditTextPreference serverBaseUrlPref = findPreference("server_base_url_input");
+            if (serverBaseUrlPref != null) {
+                serverBaseUrlPref.setSummaryProvider(preference ->
+                        serverBaseUrlPref.getText() == null || serverBaseUrlPref.getText().isEmpty()
+                                ? "未填写服务器地址"
+                                : serverBaseUrlPref.getText());
+            }
+
+
+            Preference authenticationPref = findPreference("authenticationBtn");
+            if (authenticationPref != null) {
+                authenticationPref.setOnPreferenceClickListener(preference -> {
+                    //获取输入框的值
+                    String username = usernamePref.getText();
+                    String password = passwordPref.getText();
+                    String serverBaseUrl = serverBaseUrlPref.getText();
+
+                    if(SettingsActivity.instance.cService != null){
+                        SettingsActivity.instance.cService.setParameter(username,password);
+                        SettingsActivity.instance.cService.setIp("10.1.254.139");
+                        SettingsActivity.instance.cService.connect();
+                    }
+
+
+                    return true;
+                });
+            }
+
+            SwitchPreferenceCompat runFunPref = findPreference("feature_toggle_run_fun");
+            if (runFunPref != null) {
+                runFunPref.setOnPreferenceChangeListener((preference, newValue) -> {
                     if ((boolean) newValue) {
                         Toast.makeText(getContext(), "root 权限检查中！", Toast.LENGTH_SHORT).show();
                         Process process = null;
@@ -160,17 +232,17 @@ public class SettingsActivity extends AppCompatActivity {
                                 }
                             } else {
                                 Toast.makeText(getContext(), "root权限检查失败！", Toast.LENGTH_SHORT).show();
-                                runfuncPref.setChecked(false);
+                                runFunPref.setChecked(false);
                             }
                         } catch (IOException e) {
                             Toast.makeText(getContext(), "root权限检查失败！", Toast.LENGTH_SHORT).show();
-                            runfuncPref.setChecked(false);
+                            runFunPref.setChecked(false);
                         } finally {
                             if (process != null) {
                                 process.destroy();
                             }
                         }
-                    }else{
+                    } else {
                         ApplyForPermission.applyForAccessibilityPermission(SettingsActivity.instance);
                     }
                     return true;
@@ -211,7 +283,14 @@ public class SettingsActivity extends AppCompatActivity {
                         optionThreePref.getValue() == null
                                 ? "未选择显示题解方式"
                                 : optionThreePref.getEntry());
+                optionThreePref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    // 获取当前选择的选项值
+                    String selectedOption = newValue.toString();
+                    Log.i("option_three", "Selected Option: " + selectedOption);
+                    return true;
+                });
             }
+
             //关于我们点击事件
             Preference aboutUsPref = findPreference("home_url");
             if (aboutUsPref != null) {
@@ -239,7 +318,7 @@ public class SettingsActivity extends AppCompatActivity {
                 });
             }
             //监听事件
-            if(SettingsActivity.instance.checkRunMode() == ApplyForPermission.PrivilegeLevel.USER && SettingsActivity.instance.isUse()){
+            if (SettingsActivity.instance.checkRunMode() == ApplyForPermission.PrivilegeLevel.USER && SettingsActivity.instance.isUse()) {
                 ApplyForPermission.applyForAccessibilityPermission(SettingsActivity.instance);
             }
 

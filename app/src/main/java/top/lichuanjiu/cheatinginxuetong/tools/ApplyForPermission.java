@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import top.lichuanjiu.cheatinginxuetong.SettingsActivity;
 import top.lichuanjiu.cheatinginxuetong.service.MyAccessibilityService;
 
 public class ApplyForPermission {
@@ -207,8 +208,15 @@ public class ApplyForPermission {
         }
         return false;
     }
+    public static ApplyForPermission.PrivilegeLevel isRootRun(){
+        if(!isRoot()){
+            return PrivilegeLevel.USER;
+        }
+        return SettingsActivity.instance.checkRunMode();
+//        return true;
+    }
 
-    private static void showAuthorizationDialog(Context context, String msg, Runnable onUserAgreed, Runnable onUserRefused) {
+    public static void showAuthorizationDialog(Context context, String msg, Runnable onUserAgreed, Runnable onUserRefused) {
         new AlertDialog.Builder(context)
                 .setTitle("授权请求")
                 .setMessage(msg)
@@ -227,7 +235,7 @@ public class ApplyForPermission {
                 .show();
     }
 
-    private static void onUserRefused() {
+    public static void onUserRefused() {
         System.exit(-1);
     }
 

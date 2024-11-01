@@ -1,9 +1,8 @@
 package top.lichuanjiu.cheatinginxuetong.tools;
 
-import android.app.Activity;
 import android.content.Context;
 
-import java.io.IOException;
+import top.lichuanjiu.cheatinginxuetong.service.FloatWindowService;
 
 public class ScreenshotTools {
     private Context context;
@@ -14,12 +13,19 @@ public class ScreenshotTools {
 
 
     public void startScreenshot(ApplyForPermission.PrivilegeLevel mode, int Delayed) {
+        if(FloatWindowService.instance != null){
+            FloatWindowService.instance.hide();
+        }
         if (mode == ApplyForPermission.PrivilegeLevel.ROOT) {
             startScreenshot(Delayed);
+        } else {
+            startScreenshot();
         }
     }
 
-    public void startScreenshot(Context context) {
+    public void startScreenshot() {
+
+
 
     }
 
