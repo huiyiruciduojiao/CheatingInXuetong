@@ -4,14 +4,15 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -20,8 +21,8 @@ import top.lichuanjiu.cheatinginxuetong.R;
 public class FloatWindowService extends Service {
     public static FloatWindowService instance = null;
     public WindowManager.LayoutParams params;
-    HandlerThread handlerThread = new HandlerThread("MyHandlerThread");
-    Handler handler = null;
+    Handler handler = new Handler(Looper.getMainLooper());
+    ;
     private WindowManager windowManager;
     private View floatView;
     private boolean isFloatViewAdded = false;
@@ -86,23 +87,38 @@ public class FloatWindowService extends Service {
             }
         });
         instance = this;
-        handlerThread.start();
-        handler = new Handler(handlerThread.getLooper());
+
     }
 
     public void hide() {
         Log.d("FloatWindowService", "ServiceOnDestroy");
-        if (floatView != null && isFloatViewAdded && handler != null) {
+        if (floatView != null && isFloatViewAdded) {
             handler.post(() -> windowManager.removeView(floatView));
             isFloatViewAdded = false;
         }
     }
 
     public void show() {
-        if (floatView != null && !isFloatViewAdded && handler != null) {
+        if (floatView != null && !isFloatViewAdded) {
             handler.post(() -> windowManager.addView(floatView, params));
             isFloatViewAdded = true;
         }
+    }
+
+    public void setText(String text) {
+        handler.post(() -> {
+            TextView floatWindowText = floatView.findViewById(R.id.float_window_text);
+            floatWindowText.setText(text);
+        });
+
+    }
+
+    public void addText(String text) {
+        handler.post(() -> {
+            TextView floatWindowText = floatView.findViewById(R.id.float_window_text);
+            floatWindowText.append(text);
+        });
+
     }
 
     @Override

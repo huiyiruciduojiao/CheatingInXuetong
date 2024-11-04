@@ -10,8 +10,11 @@ import androidx.annotation.Nullable;
 
 import top.lichuanjiu.cheatinginxuetong.SettingsActivity;
 import top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission;
+import top.lichuanjiu.cheatinginxuetong.tools.EncryptionTools;
 import top.lichuanjiu.cheatinginxuetong.tools.ScreenshotTools;
 import top.lichuanjiu.cheatinginxuetong.tools.SuCommandTools;
+import top.lichuanjiu.cheatinginxuetong.tools.network.Connected;
+import top.lichuanjiu.cheatinginxuetong.tools.network.OptionsType;
 
 public class NoticeOperationProcessingService extends Service {
     @Nullable
@@ -41,6 +44,12 @@ public class NoticeOperationProcessingService extends Service {
             } else if ("ACTION_SEND".equals(action)) {
                 // 执行发送操作
                 Log.d("NoticeOperationProcessingService", "ACTION_SEND");
+
+                FloatWindowService.instance.setText("正在识别答案...");
+                //获取用户名密码
+                String[] userAndPwd = SettingsActivity.instance.getUserAndPwd();
+                new Connected().execute(OptionsType.SOLVE,SettingsActivity.absPath+"/screenshot.png",userAndPwd[0], EncryptionTools.md5(userAndPwd[1]));
+
             }
         }
         return super.onStartCommand(intent, flags, startId);

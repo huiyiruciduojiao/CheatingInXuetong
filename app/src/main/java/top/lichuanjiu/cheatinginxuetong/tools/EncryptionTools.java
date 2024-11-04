@@ -1,5 +1,6 @@
 package top.lichuanjiu.cheatinginxuetong.tools;
 
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -74,5 +75,6 @@ public class EncryptionTools {
         }
         return result.toString();
     }
+
 
 }

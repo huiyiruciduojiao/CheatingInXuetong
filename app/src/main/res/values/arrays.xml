@@ -1,38 +1,38 @@
 <resources>
     <!-- Option One -->
-    <string-array name="option_one_entries">
+    <string-array name="trigger_method_entries">
         <item>同时按下音量加减键</item>
         <item>通知栏点击截图</item>
         <item>选项一C</item>
     </string-array>
-    <string-array name="option_one_values">
-        <item>value_one_a</item>
-        <item>value_one_b</item>
-        <item>value_one_c</item>
+    <string-array name="trigger_method_values">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
     </string-array>
 
     <!-- Option Two -->
-    <string-array name="option_two_entries">
+    <string-array name="request_solution_method_entries">
         <item>截图后自动提交</item>
         <item>通知栏手动提交</item>
         <item>选项二C</item>
     </string-array>
-    <string-array name="option_two_values">
-        <item>value_two_a</item>
-        <item>value_two_b</item>
-        <item>value_two_c</item>
+    <string-array name="request_solution_method_values">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
     </string-array>
 
     <!-- Option Three -->
-    <string-array name="option_three_entries">
+    <string-array name="show_method_entries">
         <item>浮窗显示</item>
         <item>通知显示</item>
         <item>我不需要</item>
     </string-array>
-    <string-array name="option_three_values">
-        <item>value_three_a</item>
-        <item>value_three_b</item>
-        <item>value_three_c</item>
+    <string-array name="show_method_values">
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
     </string-array>
     <string-array name="xposedscope">
         <item>android</item>

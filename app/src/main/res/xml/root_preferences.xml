@@ -8,7 +8,7 @@
 
 
 
-    <PreferenceCategory app:title="@string/authentication_parameters">
+    <PreferenceCategory app:key="authentication_title" app:title="@string/authentication_parameters">
 
         <EditTextPreference
             app:icon="@drawable/ic_user"
@@ -37,6 +37,7 @@
             app:title="@string/authentication_title"
             app:summary="@string/authentication_summary"
             app:icon="@drawable/ic_sponsor" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/functional_configuration">
@@ -49,32 +50,30 @@
             app:key="feature_toggle_run_fun"
             app:title="@string/feature_toggle_run_fun"
             app:icon="@drawable/ic_rootjurisdiction"/>
+
+
         <ListPreference
-            app:defaultValue="default_value"
             app:dependency="feature_toggle"
-            app:entries="@array/option_one_entries"
-            app:entryValues="@array/option_one_values"
-            app:key="option_one"
+            app:entries="@array/trigger_method_entries"
+            app:entryValues="@array/trigger_method_values"
+            app:key="trigger_method"
             app:title="@string/option_one_title"
             app:icon="@drawable/ic_screenshot"
             />
-
         <ListPreference
-            app:defaultValue="default_value"
             app:dependency="feature_toggle"
-            app:entries="@array/option_two_entries"
-            app:entryValues="@array/option_two_values"
-            app:key="option_two"
+            app:entries="@array/request_solution_method_entries"
+            app:entryValues="@array/request_solution_method_values"
+            app:key="request_solution_method"
             app:title="@string/option_two_title"
             app:icon="@drawable/ic_request"
             />
 
         <ListPreference
-            app:defaultValue="default_value"
             app:dependency="feature_toggle"
-            app:entries="@array/option_three_entries"
-            app:entryValues="@array/option_three_values"
-            app:key="option_three"
+            app:entries="@array/show_method_entries"
+            app:entryValues="@array/show_method_values"
+            app:key="show_method"
             app:title="@string/option_three_title"
             app:icon="@drawable/ic_showfun"/>
 

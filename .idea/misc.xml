@@ -9,6 +9,7 @@
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/drawable/ic_github.xml" value="0.249" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/drawable/ic_home.xml" value="0.249" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2275" />
+        <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/drawable/ic_loading.xml" value="0.217" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/drawable/ic_pass.xml" value="0.249" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/drawable/ic_request.xml" value="0.233" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/drawable/ic_rootjurisdiction.xml" value="0.249" />
@@ -18,12 +19,15 @@
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/drawable/ic_user.xml" value="0.248" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/layout/custom_edittext_preference.xml" value="0.22760416666666666" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/layout/float_window_layout.xml" value="0.3854166666666667" />
+        <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/layout/loading_view.xml" value="0.371875" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/layout/preference_title.xml" value="0.325" />
+        <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/layout/rotate.xml" value="0.3140625" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/layout/save_button_layout.xml" value="0.18645833333333334" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/layout/settings_activity.xml" value="0.33" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2275" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.2275" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/xml/accessibility_service_config.xml" value="0.3854166666666667" />
+        <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/xml/network_security_config.xml" value="0.3489583333333333" />
         <entry key="..\:/Program Files/Android/Android_Project/CheatingInXuetong/app/src/main/res/xml/root_preferences.xml" value="0.33" />
       </map>
     </option>

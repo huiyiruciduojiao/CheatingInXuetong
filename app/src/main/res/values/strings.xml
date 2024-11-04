@@ -2,6 +2,7 @@
     <string name="app_name">学习通AI智能体</string>
     <!-- Authentication Parameters -->
     <string name="authentication_parameters">认证参数</string>
+    <string name="welcome_user">欢迎 %s</string>
     <string name="username_title">用户名</string>
     <string name="password_title">密码</string>
     <string name="save_button_title">保存</string>
@@ -34,5 +35,9 @@
     <string name="float_window_defluat">还没有题解内容哦！</string>
     <string name="server_base_url_title">服务器基地址</string>
     <string name="authentication_title">验证连接</string>
-    <string name="authentication_summary">点击来验证与服务器的连接</string>
+    <string name="authentication_summary">点击来验证与服务器的连接</string>\
+    <string name="authentication_success">剩余次数：%s，已使用：%s，总数：%s</string>
+
+<!--    动态代码使用-->
+    <string name="user_or_pdw_is_null">用户名或密码不能为空！</string>
 </resources>
