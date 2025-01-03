@@ -1,6 +1,7 @@
 package top.lichuanjiu.cheatinginxuetong;
 
 import static top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission.jumpToPermission;
+import static top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission.showApplyForScreenshotPermission;
 
 import android.app.Dialog;
 import android.content.ComponentName;
@@ -15,6 +16,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.EditTextPreference;
@@ -23,10 +25,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -34,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import top.lichuanjiu.cheatinginxuetong.service.FloatWindowService;
+import top.lichuanjiu.cheatinginxuetong.service.MediaProjectionService;
 import top.lichuanjiu.cheatinginxuetong.service.MyNotificationListenerService;
 import top.lichuanjiu.cheatinginxuetong.service.NoticeForegroundService;
 import top.lichuanjiu.cheatinginxuetong.service.NoticeOperationProcessingService;
@@ -79,7 +78,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         toggleNotificationListenerService();
         instance = this;
-        // new ApplyForPermission(this, this);
+        new ApplyForPermission(this, this);
 
         Intent noticeListenerIntent = new Intent(this, MyNotificationListenerService.class);
         startService(noticeListenerIntent);
@@ -99,6 +98,26 @@ public class SettingsActivity extends AppCompatActivity {
         cService = new ConnectedService();
 
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case ApplyForPermission.REQUEST_CODE_SCREENSHOT:
+                if (resultCode == RESULT_OK && data != null) {
+                    Intent intent = new Intent(this, MediaProjectionService.class);
+                    intent.putExtra("code", resultCode);
+                    intent.putExtra("data", data);
+
+                    startForegroundService(intent);
+                } else {
+                    ApplyForPermission.onUserRefused();
+                }
+                break;
+            case ApplyForPermission.REQUEST_CODE_NOTICE:
+                break;
+        }
     }
 
     /**
@@ -123,7 +142,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-    private boolean isUse() {
+    public boolean isUse() {
         SwitchPreferenceCompat runModePref = settingsFragment.findPreference("feature_toggle");
         if (runModePref == null) {
             return false;
@@ -133,20 +152,22 @@ public class SettingsActivity extends AppCompatActivity {
 
     /**
      * 获取settingsFragment 中的指定 ListPreference的value
+     *
      * @param key key  内容
      * @return 选中的值
      */
-    public String getListPreferenceValue(String key){
-        if(settingsFragment == null){
+    public String getListPreferenceValue(String key) {
+        if (settingsFragment == null) {
             return null;
         }
         ListPreference listPreference = settingsFragment.findPreference(key);
-        if(listPreference == null){
+        if (listPreference == null) {
             return null;
         }
         return listPreference.getValue();
 
     }
+
     /***
      * 启动悬浮窗服务
      */
@@ -281,14 +302,16 @@ public class SettingsActivity extends AppCompatActivity {
                     String newUrl = (String) newValue;
                     if (UrlUtil.isUrl(newUrl)) {
                         Connected.setSetUrl(newUrl);
-                    }else{
-                        FloatWindowService.instance.setText("输入的地址无效"+newUrl);
-                        Toast.makeText(SettingsActivity.instance, "输入的地址无效"+newUrl, Toast.LENGTH_SHORT).show();
+                    } else {
+                        if(FloatWindowService.instance != null){
+                            FloatWindowService.instance.setText("输入的地址无效" + newUrl);
+                        }
+                        Toast.makeText(SettingsActivity.instance, "输入的地址无效" + newUrl, Toast.LENGTH_SHORT).show();
                         return false;
                     }
                     return true;
                 });
-                if(UrlUtil.isUrl(serverBaseUrlPref.getText())){
+                if (serverBaseUrlPref.getText() != null && UrlUtil.isUrl(serverBaseUrlPref.getText())) {
                     Connected.setSetUrl(serverBaseUrlPref.getText());
                 }
             }
@@ -310,7 +333,6 @@ public class SettingsActivity extends AppCompatActivity {
                     mapData.put("password", EncryptionTools.md5(userAndPwd[1]));
                     String formData = HttpRequestUtil.convertMapToFormData(mapData);
                     new Connected().execute(OptionsType.AUTHENTICATION, formData);
-
                     return true;
                 });
             }
@@ -338,18 +360,19 @@ public class SettingsActivity extends AppCompatActivity {
                                 }
                             } else {
                                 Toast.makeText(getContext(), "root权限检查失败！", Toast.LENGTH_SHORT).show();
-                                runFunPref.setChecked(false);
+                                return false;
                             }
                         } catch (IOException e) {
                             Toast.makeText(getContext(), "root权限检查失败！", Toast.LENGTH_SHORT).show();
-                            runFunPref.setChecked(false);
+                            return false;
                         } finally {
                             if (process != null) {
                                 process.destroy();
                             }
                         }
                     } else {
-                        ApplyForPermission.applyForAccessibilityPermission(SettingsActivity.instance);
+                        runFunPref.setChecked(false);
+                        ApplyForPermission.showApplyForScreenshotPermission(SettingsActivity.instance,SettingsActivity.instance);
                     }
                     return true;
                 });
@@ -359,8 +382,8 @@ public class SettingsActivity extends AppCompatActivity {
                 feature_toggle.setOnPreferenceChangeListener((preference, newValue) -> {
                     if ((boolean) newValue && SettingsActivity.instance.checkRunMode() == ApplyForPermission.PrivilegeLevel.USER) {
                         //提示用户授权截取屏幕、无障碍服务
-//                        ApplyForPermission.
-                        ApplyForPermission.applyForAccessibilityPermission(SettingsActivity.instance);
+                        feature_toggle.setChecked(true);
+                        ApplyForPermission.showApplyForScreenshotPermission(SettingsActivity.instance,SettingsActivity.instance);
                     }
                     return true;
                 });
@@ -423,10 +446,7 @@ public class SettingsActivity extends AppCompatActivity {
                     return true;
                 });
             }
-            //监听事件
-            if (SettingsActivity.instance.checkRunMode() == ApplyForPermission.PrivilegeLevel.USER && SettingsActivity.instance.isUse()) {
-                ApplyForPermission.applyForAccessibilityPermission(SettingsActivity.instance);
-            }
+            showApplyForScreenshotPermission(SettingsActivity.instance,SettingsActivity.instance);
 
         }
     }

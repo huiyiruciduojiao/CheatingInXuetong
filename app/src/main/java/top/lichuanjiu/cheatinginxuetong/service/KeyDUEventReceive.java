@@ -44,7 +44,7 @@ public class KeyDUEventReceive extends BroadcastReceiver {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    new Connected().execute(OptionsType.SOLVE, SettingsActivity.absPath + "/screenshot.png", userAndPwd[0], EncryptionTools.md5(userAndPwd[1]));
+                    Connected.SendSolve();
                 }).start();
             }
 

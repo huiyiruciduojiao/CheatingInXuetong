@@ -22,12 +22,6 @@
             app:icon="@drawable/ic_pass"
             app:title="@string/password_title" />
 
-        <!--        <Preference-->
-        <!--            app:key="save_button"-->
-        <!--            app:title="@string/save_button_title"-->
-        <!--            app:summary="@string/save_button_summary"-->
-        <!--            app:widgetLayout="@layout/save_button_layout" />-->
-
         <EditTextPreference
             app:key="server_base_url_input"
             app:title="@string/server_base_url_title"
@@ -36,7 +30,7 @@
             app:key="authenticationBtn"
             app:title="@string/authentication_title"
             app:summary="@string/authentication_summary"
-            app:icon="@drawable/ic_sponsor" />
+            app:icon="@drawable/connect" />
 
     </PreferenceCategory>
 
@@ -50,7 +44,6 @@
             app:key="feature_toggle_run_fun"
             app:title="@string/feature_toggle_run_fun"
             app:icon="@drawable/ic_rootjurisdiction"/>
-
 
         <ListPreference
             app:dependency="feature_toggle"
@@ -114,8 +107,4 @@
             app:title="@string/app_name" />
 
     </PreferenceCategory>
-
-
-
-
 </PreferenceScreen>

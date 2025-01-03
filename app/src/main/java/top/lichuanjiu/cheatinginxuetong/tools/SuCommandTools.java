@@ -35,6 +35,7 @@ public class SuCommandTools {
                 process.destroy();
                 if (FloatWindowService.instance != null) {
                     FloatWindowService.instance.show();
+                    ScreenshotTools.isComplete = true;
                 }
             }
         }

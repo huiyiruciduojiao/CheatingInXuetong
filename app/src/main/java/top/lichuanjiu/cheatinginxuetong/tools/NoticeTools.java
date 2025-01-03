@@ -42,12 +42,13 @@ public class NoticeTools {
         //创建Intent对象，用于打开执行自定义操作
         Intent actionIntent = new Intent(context, NoticeOperationProcessingService.class);
         Intent actionIntent2 = new Intent(context, NoticeOperationProcessingService.class);
+        Intent actionIntent4 = new Intent(context, NoticeOperationProcessingService.class);
         actionIntent.setAction("ACTION_SCREENSHOT");
         actionIntent2.setAction("ACTION_SEND");
+        actionIntent4.setAction("ACTION_SHOW");
         PendingIntent pendingIntent = PendingIntent.getService(context, 0, actionIntent, PendingIntent.FLAG_IMMUTABLE);
-
         PendingIntent pendingIntent2 = PendingIntent.getService(context, 0, actionIntent2, PendingIntent.FLAG_IMMUTABLE);
-
+        PendingIntent pendingIntent4 = PendingIntent.getService(context, 0, actionIntent4, PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher) // 通知图标
@@ -57,6 +58,7 @@ public class NoticeTools {
                 .setOngoing(true)
                 .addAction(R.mipmap.ic_launcher, "截图", pendingIntent)
                 .addAction(R.mipmap.ic_launcher,"发送",pendingIntent2)
+                .addAction(R.mipmap.ic_launcher,"打开悬浮窗",pendingIntent4)
                 .setPriority(NotificationCompat.PRIORITY_HIGH); // 设置优先级
         this.builder = builder;
     }

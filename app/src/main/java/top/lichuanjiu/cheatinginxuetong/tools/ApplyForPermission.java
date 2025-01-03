@@ -7,6 +7,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -21,9 +23,25 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import top.lichuanjiu.cheatinginxuetong.SettingsActivity;
+import top.lichuanjiu.cheatinginxuetong.service.MediaProjectionService;
 import top.lichuanjiu.cheatinginxuetong.service.MyAccessibilityService;
 
 public class ApplyForPermission {
+    //ROOT 权限申请编码
+    public static final int REQUEST_CODE_ROOT = 100;
+    //申请截屏权限
+    public static final int REQUEST_CODE_SCREENSHOT = 101;
+    //无障碍权限申请编码
+    public static final int REQUEST_CODE_ACCESSIBILITY = 102;
+    //通知栏权限申请编码
+    public static final int REQUEST_CODE_NOTICE = 103;
+    //通知管理权限申请编码
+    public static final int REQUEST_CODE_NOTICE_MANAGER = 103;
+    public static MediaProjectionManager mediaProjectionManager = null;
+
+    public static MediaProjection mediaProjection = null;
+
+
     public ApplyForPermission(Context context, Activity activity) {
         //申请悬浮窗权限
         if (!isOverlayPermission(context)) {
@@ -42,12 +60,12 @@ public class ApplyForPermission {
         }
         //申请通知管理权限
         if (!NotificationManagerCompat.getEnabledListenerPackages(context).contains(context.getPackageName())) {
-
             showAuthorizationDialog(context, "请授予通知管理权限？拒绝授权将退出程序！", () -> {
                 applyForNoticeManagerPermission(context);
             }, ApplyForPermission::onUserRefused);
         }
-
+        //请求用户授权屏幕捕获
+        showApplyForScreenshotPermission(context, activity);
         //申请辅助功能权限
         //申请root权限
 
@@ -151,11 +169,6 @@ public class ApplyForPermission {
 
     }
 
-    //申请通知栏权限
-    public static boolean applyForNotificationPermission(Context context) {
-        return false;
-    }
-
     //申请辅助功能权限
     public static void applyForAccessibilityPermission(Context context) {
         if (isAccessibilityServiceEnabled(context, MyAccessibilityService.class.getName())) {
@@ -184,6 +197,24 @@ public class ApplyForPermission {
         return false;
     }
 
+    //    public static boolean is
+    public static void showApplyForScreenshotPermission(Context context, Activity activity) {
+        if (MediaProjectionService.mMediaProjection == null && SettingsActivity.instance != null && SettingsActivity.instance.isUse()  && isRootRun() == PrivilegeLevel.USER ) {
+            showAuthorizationDialog(context, "请授予截屏权限？拒绝授权将退出程序！", () -> {
+                applyForScreenshotPermission(activity);
+            }, ApplyForPermission::onUserRefused);
+        }
+    }
+
+
+    private static void applyForScreenshotPermission(Activity activity) {
+        mediaProjectionManager = (MediaProjectionManager) activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        // 请求用户授权屏幕捕获
+        Intent intent = mediaProjectionManager.createScreenCaptureIntent();
+        activity.startActivityForResult(intent, REQUEST_CODE_SCREENSHOT);
+    }
+
+
     public static boolean applyForRootPermission(Context context) {
         return false;
     }
@@ -208,8 +239,9 @@ public class ApplyForPermission {
         }
         return false;
     }
-    public static ApplyForPermission.PrivilegeLevel isRootRun(){
-        if(!isRoot()){
+
+    public static ApplyForPermission.PrivilegeLevel isRootRun() {
+        if (!isRoot()) {
             return PrivilegeLevel.USER;
         }
         return SettingsActivity.instance.checkRunMode();
@@ -230,6 +262,13 @@ public class ApplyForPermission {
                     public void onClick(DialogInterface dialog, int which) {
                         // 用户点击了“拒绝”
                         onUserRefused.run();
+                    }
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        onUserRefused();
                     }
                 })
                 .show();

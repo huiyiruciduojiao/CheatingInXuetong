@@ -34,7 +34,11 @@ public class HttpRequestUtil {
         if (responseCode == HttpURLConnection.HTTP_OK) {
             return readResponse(connection);
         } else {
-            throw new RuntimeException("GET请求失败，响应代码：" + responseCode);
+            Map<String, Object> map = new HashMap<>();
+            map.put("status", StatusType.STATUS_ERROR);
+            map.put("code", responseCode);
+            map.put("option", OptionsType.GET_EDITION);
+            return JSON.createJsonData(map);
         }
     }
 

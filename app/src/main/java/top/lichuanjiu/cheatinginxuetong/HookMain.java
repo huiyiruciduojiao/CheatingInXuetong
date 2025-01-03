@@ -2,18 +2,21 @@ package top.lichuanjiu.cheatinginxuetong;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.KeyEvent;
+import android.view.WindowManager;
+
+import androidx.preference.PreferenceManager;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class HookMain implements IXposedHookLoadPackage {
-    final String TAG = HookMain.class.getSimpleName();
     private final Intent intent;
     private Context context;
 
@@ -35,6 +38,21 @@ public class HookMain implements IXposedHookLoadPackage {
                     hook(lpparam);
                 }
             });
+
+            Class<?> windowStateAnimatorClass = XposedHelpers.findClass("com.android.server.wm.WindowStateAnimator", lpparam.classLoader);
+            XposedHelpers.findAndHookConstructor("com.android.server.wm.WindowSurfaceController",
+                    lpparam.classLoader, String.class, int.class, int.class,
+                    windowStateAnimatorClass, int.class, new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) {
+                            int windowType = (int)param.args[4];
+                            if (windowType == WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY) {
+                                int flags = (int) param.args[2];
+                                flags |= 0x00000040;
+                                param.args[2] = flags;
+                            }
+                        }
+                    });
         }
     }
 
@@ -52,7 +70,7 @@ public class HookMain implements IXposedHookLoadPackage {
                             if (isDUKeyEvent(downTime)) {
                                 intent.putExtra("key", keyEvent.getKeyCode());
                                 intent.putExtra("downTime", downTime);
-                                intent.putExtra("eventTime",lastDownTime);
+                                intent.putExtra("eventTime", lastDownTime);
                                 context.sendBroadcast(intent);
                             }
                         }
@@ -60,8 +78,6 @@ public class HookMain implements IXposedHookLoadPackage {
                     }
                 }
         );
-
-
     }
 
     private boolean isDUKeyEvent(long[] downTime) {

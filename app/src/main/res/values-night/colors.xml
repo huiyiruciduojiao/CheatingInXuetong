@@ -11,7 +11,9 @@
     <color name="grey">#B0BEC5</color> <!-- 灰色 -->
     <color name="transparent">#00000000</color> <!-- 透明 -->
     <!-- res/values-night/colors.xml -->
-    <color name="textColorLight">#000000</color>
-    <color name="textColorDark">#B0BEC5</color>
+    <color name="textColorLight">#B0BEC5</color>
+    <color name="textColorDark">#000000</color>
+
+
 
 </resources>

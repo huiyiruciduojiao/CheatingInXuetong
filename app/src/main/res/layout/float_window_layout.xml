@@ -1,12 +1,56 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:minWidth="180sp"
+    >
+
 
     <!-- 添加悬浮窗内容 -->
     <TextView
         android:id="@+id/float_window_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/float_window_defluat" />
+        android:textColor="@color/textColorLight"
+        android:text="@string/float_window_default" />
+
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/screenshot_button"
+            style="?android:attr/buttonBarNeutralButtonStyle"
+            android:textColor="@color/textColorLight"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:text="@string/screenshot_button" />
+
+        <Button
+            android:id="@+id/send_button"
+            style="?android:attr/buttonBarNeutralButtonStyle"
+            android:textColor="@color/textColorLight"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:text="@string/send_bution"
+             />
+        <Button
+            android:id="@+id/close_button"
+            style="?android:attr/buttonBarNeutralButtonStyle"
+            android:textColor="@color/textColorLight"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:text="@string/close_button" />
+
+    </LinearLayout>
+
+
 </LinearLayout>

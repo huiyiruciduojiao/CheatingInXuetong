@@ -32,42 +32,53 @@ public class NoticeOperationProcessingService extends Service {
                 // 执行截图操作
                 Log.d("NoticeOperationProcessingService", "ACTION_SCREENSHOT");
                 //检测root 权限
-                if(!ApplyForPermission.isRoot()){
-                    Toast.makeText(SettingsActivity.instance,"您的手机没有root权限！无法使用该方式",Toast.LENGTH_LONG).show();
-                    return super.onStartCommand(intent, flags, startId);
-                }else {
+                if (ApplyForPermission.isRoot()) {
                     //收起通知栏
                     closeNotificationBar(ApplyForPermission.PrivilegeLevel.ROOT);
                 }
                 ScreenshotTools screenshotTools = new ScreenshotTools(SettingsActivity.instance);
-                screenshotTools.startScreenshot(ApplyForPermission.isRootRun(),500);
+                screenshotTools.startScreenshot(ApplyForPermission.isRootRun(), 500);
             } else if ("ACTION_SEND".equals(action)) {
                 // 执行发送操作
                 Log.d("NoticeOperationProcessingService", "ACTION_SEND");
 
-                FloatWindowService.instance.setText("正在识别答案...");
-                //获取用户名密码
-                String[] userAndPwd = SettingsActivity.instance.getUserAndPwd();
-                new Connected().execute(OptionsType.SOLVE,SettingsActivity.absPath+"/screenshot.png",userAndPwd[0], EncryptionTools.md5(userAndPwd[1]));
+                Connected.SendSolve();
 
+//                //获取用户名密码
+//                String[] userAndPwd = SettingsActivity.instance.getUserAndPwd();
+//                if(userAndPwd[0] == null || userAndPwd[1] == null || userAndPwd[0].isEmpty() || userAndPwd[1].isEmpty()){
+//                    FloatWindowService.instance.setText("用户名或密码为空，请先设置用户名密码");
+//                    return super.onStartCommand(intent,flags,startId);
+//                }
+//                FloatWindowService.instance.setText("正在识别答案...");
+//
+//                new Connected().execute(OptionsType.SOLVE, SettingsActivity.absPath + "/screenshot.png", userAndPwd[0], EncryptionTools.md5(userAndPwd[1]));
+
+            }else if("ACTION_SHOW".equals(action)){
+                //显示悬浮窗
+                FloatWindowService.instance.show();
             }
+
         }
         return super.onStartCommand(intent, flags, startId);
     }
-    public void closeNotificationBar(ApplyForPermission.PrivilegeLevel level){
-        if(level == ApplyForPermission.PrivilegeLevel.ROOT){
+
+    public void closeNotificationBar(ApplyForPermission.PrivilegeLevel level) {
+        if (level == ApplyForPermission.PrivilegeLevel.ROOT) {
             closeNotificationBarRoot();
         }
 
     }
-    private void closeNotificationBarRoot(){
-        if(ApplyForPermission.isRoot()){
+
+    private void closeNotificationBarRoot() {
+        if (ApplyForPermission.isRoot()) {
             Log.d("NoticeOperationProcessingService", "root closeNotificationBar");
             SuCommandTools.asyncSuCommand("service call statusbar 2");
-        }else{
+        } else {
             throw new RuntimeException("没有root权限，无法执行root命令");
         }
     }
+
     public void onCreate() {
         super.onCreate();
         Log.d("NoticeOperationProcessingService", "ServiceOnCreate");

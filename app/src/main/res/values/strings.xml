@@ -32,7 +32,7 @@
     <string name="github_url">https://github.com/huiyiruciduojiao/CheatingInXuetong</string>
     <string name="sponsorship_development_url">https://www.itziyuanwang.top/supportOur.php</string>
     <string name="accessibility_desc">学习通AI智能体的基础服务，用于截屏以及监听截屏触发事件</string>
-    <string name="float_window_defluat">还没有题解内容哦！</string>
+    <string name="float_window_default">还没有题解内容哦！</string>
     <string name="server_base_url_title">服务器基地址</string>
     <string name="authentication_title">验证连接</string>
     <string name="authentication_summary">点击来验证与服务器的连接</string>\
@@ -40,4 +40,9 @@
 
 <!--    动态代码使用-->
     <string name="user_or_pdw_is_null">用户名或密码不能为空！</string>
+    <string name="screenshot_button">截图</string>
+    <string name="send_bution">发送</string>
+    <string name="close_button">关闭</string>
+<!--    lsp相关-->
+    <string name="xposeddescription">该模块用于Hook系统音量按钮事件，同时Hook系统UI渲染，用于屏蔽悬浮窗</string>
 </resources>
