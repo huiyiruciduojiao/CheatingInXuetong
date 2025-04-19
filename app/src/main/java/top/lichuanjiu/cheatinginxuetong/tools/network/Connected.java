@@ -20,13 +20,15 @@ import top.lichuanjiu.cheatinginxuetong.App;
 import top.lichuanjiu.cheatinginxuetong.R;
 import top.lichuanjiu.cheatinginxuetong.SettingsActivity;
 import top.lichuanjiu.cheatinginxuetong.service.FloatWindowService;
+import top.lichuanjiu.cheatinginxuetong.sso.TokenManager;
+import top.lichuanjiu.cheatinginxuetong.sso.UserInfoSet;
 import top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission;
 import top.lichuanjiu.cheatinginxuetong.tools.EncryptionTools;
 import top.lichuanjiu.cheatinginxuetong.tools.JSON;
 import top.lichuanjiu.cheatinginxuetong.tools.ScreenshotTools;
 
 public class Connected extends AsyncTask<String, Void, String> {
-    private static String baseUrl = "http://10.1.254.139/";
+    private static String baseUrl = "http://10.1.254.101/";
     private static String apiUrl = baseUrl + "/api";
 
     // 验证
@@ -66,19 +68,22 @@ public class Connected extends AsyncTask<String, Void, String> {
             return;
         }
 
-        String[] userAndPwd = SettingsActivity.instance.getUserAndPwd();
-        if (userAndPwd[0] == null || userAndPwd[1] == null || userAndPwd[0].isEmpty() || userAndPwd[1].isEmpty()) {
-            FloatWindowService.instance.setText("用户名或密码为空，请先设置用户名密码");
-            return;
-        }
-        FloatWindowService.instance.setText("正在识别答案...");
-        String fileName = SettingsActivity.instance.checkRunMode() == ApplyForPermission.PrivilegeLevel.ROOT ? "/screenshot.png" : "/screenshot_no_root.png";
-        new Connected().execute(OptionsType.SOLVE, SettingsActivity.absPath + fileName, userAndPwd[0], EncryptionTools.md5(userAndPwd[1]));
+        //获取用户信息
+        SettingsActivity.instance.authManager.refreshToken(
+                        TokenManager.getRefreshToken(SettingsActivity.instance))
+                .thenAccept(tokenSet -> {
+                    FloatWindowService.instance.setText("正在识别答案...");
+                    String fileName = SettingsActivity.instance.checkRunMode() == ApplyForPermission.PrivilegeLevel.ROOT ? "/screenshot.png" : "/screenshot_no_root.png";
+                    new Connected().execute(OptionsType.SOLVE, SettingsActivity.absPath + fileName, tokenSet.accessToken, UserInfoSet.sub);
+                }).exceptionally(e -> {
+                    FloatWindowService.instance.setText("刷新token失败，请重新登录！");
+                    return null;
+                });
     }
 
-    private static String sendSubmitImage(String filePath, String username, String password) {
+    private static String sendSubmitImage(String filePath, String token, String sub) {
         try {
-            return HttpRequestUtil.uploadImage(submitImage, filePath, username, password);
+            return HttpRequestUtil.uploadImage(submitImage, filePath, token, sub);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -229,10 +234,12 @@ public class Connected extends AsyncTask<String, Void, String> {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         //修改验证按钮字符串
-        assert authenticationBtn != null;
-        authenticationBtn.setSummary(format);
+        if(authenticationBtn != null){
+            authenticationBtn.setSummary(format);
+        }
+        SettingsActivity.instance.stopLoad();
+
     }
 
     private void onSolve(Map<String, Object> data) {

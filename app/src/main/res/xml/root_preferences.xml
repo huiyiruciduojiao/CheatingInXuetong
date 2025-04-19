@@ -4,23 +4,13 @@
         app:layout="@layout/preference_title"
         android:title="@string/app_name"
         />
-
-
-
-
     <PreferenceCategory app:key="authentication_title" app:title="@string/authentication_parameters">
 
-        <EditTextPreference
+        <Preference
             app:icon="@drawable/ic_user"
             app:key="username"
+            app:summary="@string/username_no_login_summary"
             app:title="@string/username_title" />
-
-
-        <EditTextPreference
-            app:dialogTitle="@string/password_title"
-            app:key="password"
-            app:icon="@drawable/ic_pass"
-            app:title="@string/password_title" />
 
         <EditTextPreference
             app:key="server_base_url_input"
@@ -31,6 +21,11 @@
             app:title="@string/authentication_title"
             app:summary="@string/authentication_summary"
             app:icon="@drawable/connect" />
+        <Preference
+            app:key="logoutBtn"
+            app:title="@string/logout_title"
+            app:summary="@string/logout_summary"
+            app:icon="@drawable/logout" />
 
     </PreferenceCategory>
 

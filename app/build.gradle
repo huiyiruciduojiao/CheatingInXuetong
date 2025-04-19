@@ -9,11 +9,12 @@ android {
         applicationId "top.lichuanjiu.cheatinginxuetong"
         minSdk 29
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         namespace "top.lichuanjiu.cheatinginxuetong"
+        manifestPlaceholders = [appAuthRedirectScheme: "ysitxxtcheatinginxuetong"]
     }
 
     buildTypes {
@@ -32,6 +33,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.preference:preference:1.1.1'
+    implementation group: 'net.openid', name: 'appauth', version: '0.11.1'
+    implementation 'androidx.security:security-crypto:1.0.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

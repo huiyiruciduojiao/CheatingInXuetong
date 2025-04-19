@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_user_no_login">您没有登录，请登录使用</string>
+    <string name="welcome_user_login_failure">登录失效，请重新登录</string>
+    <string name="logout_title">退出登录</string>
+    <string name="username_no_login_summary">您还没有登录，请点击下方的按钮登录</string>
+    <string name="login_error_title">登录失败:</string>
+    <string name="logout_error_title">登录失败:</string>
+</resources>

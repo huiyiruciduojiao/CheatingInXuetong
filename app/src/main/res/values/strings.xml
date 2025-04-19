@@ -26,16 +26,18 @@
     <string name="sponsorship_development_title">赞助开发</string>
     <string name="sponsorship_development_summary">点击请作者喝杯咖啡</string>
     <string name="version_information">版本信息</string>
-    <string name="app_version">1.0.0.1</string>
+    <string name="app_version">1.0.1.1</string>
     <string name="home_url">https://www.itziyuanwang.top/</string>
     <string name="github_url_title">Github地址</string>
     <string name="github_url">https://github.com/huiyiruciduojiao/CheatingInXuetong</string>
-    <string name="sponsorship_development_url">https://www.itziyuanwang.top/supportOur.php</string>
+    <string name="sponsorship_development_url">https://www.itziyuanwang.top/supportOur.html</string>
     <string name="accessibility_desc">学习通AI智能体的基础服务，用于截屏以及监听截屏触发事件</string>
     <string name="float_window_default">还没有题解内容哦！</string>
     <string name="server_base_url_title">服务器基地址</string>
     <string name="authentication_title">验证连接</string>
-    <string name="authentication_summary">点击来验证与服务器的连接</string>\
+    <string name="authentication_summary">点击来验证与服务器的连接</string>
+    <string name="authentication_no_login">登录账号</string>
+    <string name="authentication_no_login_summary">点击来登录账号</string>
     <string name="authentication_success">剩余次数：%s，已使用：%s，总数：%s</string>
 
 <!--    动态代码使用-->
@@ -44,5 +46,12 @@
     <string name="send_bution">发送</string>
     <string name="close_button">关闭</string>
 <!--    lsp相关-->
-    <string name="xposeddescription">该模块用于Hook系统音量按钮事件，同时Hook系统UI渲染，用于屏蔽悬浮窗</string>
+    <string name="xposeddescription">该模块用于Hook系统音量按钮事件，同时Hook系统UI渲染，将悬浮窗隐藏与截录屏中，移除安全标识，以达到无视禁止截屏</string>
+    <string name="welcome_user_no_login">您没有登录，请登录使用</string>
+    <string name="welcome_user_login_failure">登录失效，请重新登录</string>
+    <string name="logout_title">退出登录</string>
+    <string name="logout_summary">点击将退出当前账号</string>
+    <string name="username_no_login_summary">您还没有登录，请点击下方的按钮登录</string>
+    <string name="login_error_title">登录失败:</string>
+    <string name="logout_error_title">登录失败:</string>
 </resources>

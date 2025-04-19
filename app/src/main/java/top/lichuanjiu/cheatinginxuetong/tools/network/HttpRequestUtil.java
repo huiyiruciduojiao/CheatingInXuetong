@@ -55,6 +55,7 @@ public class HttpRequestUtil {
             dos.writeBytes(urlParameters);
             dos.flush();
         } catch (Exception e) {
+            e.printStackTrace();
             Map<String, Object> map = new HashMap<>();
             map.put("status", StatusType.STATUS_ERROR);
             map.put("code", e.getMessage());
@@ -92,12 +93,12 @@ public class HttpRequestUtil {
 
             // 添加用户名字段
             writer.append("--" + BOUNDARY).append(LINE_FEED);
-            writer.append("Content-Disposition: form-data; name=\"username\"").append(LINE_FEED);
+            writer.append("Content-Disposition: form-data; name=\"Token\"").append(LINE_FEED);
             writer.append(LINE_FEED).append(username).append(LINE_FEED).flush();
 
             // 添加密码字段
             writer.append("--" + BOUNDARY).append(LINE_FEED);
-            writer.append("Content-Disposition: form-data; name=\"password\"").append(LINE_FEED);
+            writer.append("Content-Disposition: form-data; name=\"Sub\"").append(LINE_FEED);
             writer.append(LINE_FEED).append(password).append(LINE_FEED).flush();
 
             // 添加文件部分

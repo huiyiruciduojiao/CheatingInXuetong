@@ -3,14 +3,18 @@ package top.lichuanjiu.cheatinginxuetong;
 import static top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission.jumpToPermission;
 import static top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission.showApplyForScreenshotPermission;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -22,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -36,9 +41,14 @@ import top.lichuanjiu.cheatinginxuetong.service.MediaProjectionService;
 import top.lichuanjiu.cheatinginxuetong.service.MyNotificationListenerService;
 import top.lichuanjiu.cheatinginxuetong.service.NoticeForegroundService;
 import top.lichuanjiu.cheatinginxuetong.service.NoticeOperationProcessingService;
+import top.lichuanjiu.cheatinginxuetong.sso.AuthManager;
+import top.lichuanjiu.cheatinginxuetong.sso.LoginStates;
+import top.lichuanjiu.cheatinginxuetong.sso.TokenManager;
+import top.lichuanjiu.cheatinginxuetong.sso.TokenSet;
+import top.lichuanjiu.cheatinginxuetong.sso.UserInfoSet;
 import top.lichuanjiu.cheatinginxuetong.tools.ApplyForPermission;
 import top.lichuanjiu.cheatinginxuetong.tools.ConnectedService;
-import top.lichuanjiu.cheatinginxuetong.tools.EncryptionTools;
+import top.lichuanjiu.cheatinginxuetong.tools.ExecuteOperate;
 import top.lichuanjiu.cheatinginxuetong.tools.network.Connected;
 import top.lichuanjiu.cheatinginxuetong.tools.network.HttpRequestUtil;
 import top.lichuanjiu.cheatinginxuetong.tools.network.OptionsType;
@@ -54,11 +64,19 @@ public class SettingsActivity extends AppCompatActivity {
     public ConnectedService cService = null;
 
     private Dialog loadingDialog;
+    public AuthManager authManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
+
+
+        //测试代码
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
+
         if (savedInstanceState == null) {
             settingsFragment = new SettingsFragment();
             getSupportFragmentManager()
@@ -70,6 +88,8 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+
         //初始化加载动画
         initLoading();
 
@@ -96,8 +116,9 @@ public class SettingsActivity extends AppCompatActivity {
         startFloatingWindow();
 
         cService = new ConnectedService();
+        SettingsActivity.instance.authManager = new AuthManager(SettingsActivity.instance);
 
-
+        reLogin();
     }
 
     @Override
@@ -117,6 +138,12 @@ public class SettingsActivity extends AppCompatActivity {
                 break;
             case ApplyForPermission.REQUEST_CODE_NOTICE:
                 break;
+            case 1000:
+                //登录回调
+                authManager.handleAuthorizationResponse(data).thenAccept(this::reLogin);
+                break;
+            default:
+                stopLoad();
         }
     }
 
@@ -128,6 +155,152 @@ public class SettingsActivity extends AppCompatActivity {
         loadingDialog.setContentView(R.layout.loading_view);
         loadingDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         loadingDialog.setCancelable(false);
+    }
+
+    public void reLogin() {
+        // 加载Token
+        TokenSet tokenSet = TokenManager.getToken(this);
+        reLogin(tokenSet);
+    }
+
+    public void reLogin(TokenSet tokenSet) {
+        showLoad();
+
+        if (tokenSet.refreshToken != null) {
+            authManager.refreshToken(tokenSet.refreshToken).thenAccept(this::onRefreshSuccess)
+                    .exceptionally(e -> {
+                        Log.e("token_load", "refresh_token_failed");
+                        LoginStates.loginState = LoginStates.LoginStateEnum.LoginExpired;
+                        e.printStackTrace();
+                        onLoginExpired();
+                        stopLoad();
+                        // 可以选择跳转登录页或提示
+                        return null;
+                    });
+        } else {
+            stopLoad();
+            Log.i("token_load", "refresh_token is null");
+            LoginStates.loginState = LoginStates.LoginStateEnum.NoLogin;
+            // 可以考虑在这里调用登录逻辑
+            onNoLogin();
+        }
+    }
+
+    private void onRefreshSuccess(TokenSet newTokenSet) {
+        Log.d("token_load", "refresh_token_success");
+
+        authManager.getUserInfo(newTokenSet.accessToken)
+                .thenAccept(this::onUserInfoSuccess)
+                .exceptionally(e -> {
+                    stopLoad();
+                    LoginStates.loginState = LoginStates.LoginStateEnum.LoginExpired;
+                    onLoginExpired();
+                    Log.e("token_load", "获取用户信息失败，可能登录失效");
+                    e.printStackTrace();
+                    return null;
+                });
+    }
+
+    private void onUserInfoSuccess(UserInfoSet userInfoSet) {
+
+        if (userInfoSet == null) {
+            stopLoad();
+            Log.w("token_load", "userInfoSet is null");
+            return;
+        }
+        LoginStates.loginState = LoginStates.LoginStateEnum.Login;
+        ExecuteOperate.verifyConnection();
+        String displayName = (userInfoSet.userNickName == null || userInfoSet.userNickName.isEmpty())
+                ? userInfoSet.userName
+                : userInfoSet.userNickName;
+
+        String format = String.format(
+                SettingsActivity.instance.getString(R.string.welcome_user),
+                displayName
+        );
+        new Handler(Looper.getMainLooper()).post(() -> {
+            PreferenceCategory authentication_title = settingsFragment.findPreference("authentication_title");
+            if (authentication_title != null) {
+                authentication_title.setTitle(format);
+            }
+            Preference username = settingsFragment.findPreference("username");
+            if (username != null) {
+                username.setSummary(userInfoSet.userName);
+            }
+            Preference logoutBtn = settingsFragment.findPreference("logoutBtn");
+            if (logoutBtn != null) {
+                logoutBtn.setVisible(true);
+            }
+            Preference authenticationBtn = settingsFragment.findPreference("authenticationBtn");
+            if (authenticationBtn != null) {
+                authenticationBtn.setTitle(R.string.authentication_title);
+                authenticationBtn.setSummary(R.string.authentication_summary);
+            }
+            if(FloatWindowService.instance != null){
+                FloatWindowService.instance.setText(format);
+            }
+
+        });
+        //验证与题库服务器的连接
+
+        stopLoad();
+
+        Log.w("token_load", "用户信息加载成功，标题已更新");
+    }
+
+    /**
+     * 用户未登录
+     */
+    private void onNoLogin() {
+        new Handler(Looper.getMainLooper()).post(() -> {
+
+            PreferenceCategory authentication_title = settingsFragment.findPreference("authentication_title");
+            if (authentication_title != null) {
+                authentication_title.setTitle(R.string.welcome_user_no_login);
+            }
+            Preference username = settingsFragment.findPreference("username");
+            if (username != null) {
+                username.setSummary(R.string.username_no_login_summary);
+            }
+            Preference logoutBtn = settingsFragment.findPreference("logoutBtn");
+            if (logoutBtn != null) {
+                logoutBtn.setVisible(false);
+            }
+            Preference authenticationBtn = settingsFragment.findPreference("authenticationBtn");
+            if (authenticationBtn != null) {
+                authenticationBtn.setTitle(R.string.authentication_no_login);
+                authenticationBtn.setSummary(R.string.authentication_no_login_summary);
+            }
+            if(FloatWindowService.instance != null){
+                FloatWindowService.instance.setText(this.getString(R.string.authentication_no_login));
+            }
+
+        });
+    }
+
+    /**
+     * 登录失效
+     */
+    private void onLoginExpired() {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            PreferenceCategory authentication_title = settingsFragment.findPreference("authentication_title");
+            if (authentication_title != null) {
+                authentication_title.setTitle(R.string.welcome_user_login_failure);
+            }
+            Preference logoutBtn = settingsFragment.findPreference("logoutBtn");
+            if (logoutBtn != null) {
+                logoutBtn.setVisible(false);
+            }
+            Preference authenticationBtn = settingsFragment.findPreference("authenticationBtn");
+            if (authenticationBtn != null) {
+                authenticationBtn.setTitle(R.string.authentication_no_login);
+                authenticationBtn.setSummary(R.string.authentication_no_login_summary);
+            }
+            if(FloatWindowService.instance != null){
+                FloatWindowService.instance.setText(this.getString(R.string.welcome_user_login_failure));
+            }
+
+        });
     }
 
     public ApplyForPermission.PrivilegeLevel checkRunMode() {
@@ -221,11 +394,20 @@ public class SettingsActivity extends AppCompatActivity {
      */
     public void stopLoad() {
         if (loadingDialog != null && loadingDialog.isShowing()) {
-            ImageView imageView = loadingDialog.findViewById(R.id.loading_image);
-            imageView.setVisibility(View.GONE);
-            imageView.clearAnimation();
-            loadingDialog.dismiss();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                ImageView imageView = loadingDialog.findViewById(R.id.loading_image);
+                imageView.setVisibility(View.GONE);
+                imageView.clearAnimation();
+                loadingDialog.dismiss();
+            });
         }
+    }
+
+    public void showTips(String message) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            Toast.makeText(SettingsActivity.instance, message, Toast.LENGTH_SHORT).show();
+
+        });
     }
 
     private void toggleNotificationListenerService() {
@@ -249,17 +431,20 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public String[] getUserAndPwd() {
-        EditTextPreference usernamePref = settingsFragment.findPreference("username");
-        EditTextPreference passwordPref = settingsFragment.findPreference("password");
-        if (usernamePref == null || passwordPref == null) {
-            return null;
-        }
-
-        String[] data = null;
-        if (usernamePref.getText() != null && !usernamePref.getText().isEmpty() && passwordPref.getText() != null && !passwordPref.getText().isEmpty()) {
-            data = new String[]{usernamePref.getText(), passwordPref.getText()};
-        }
-        return data;
+        Throwable e = new Throwable("功能未完成");
+        e.printStackTrace();
+        return null;
+//        EditTextPreference usernamePref = settingsFragment.findPreference("username");
+//        EditTextPreference passwordPref = settingsFragment.findPreference("password");
+//        if (usernamePref == null || passwordPref == null) {
+//            return null;
+//        }
+//
+//        String[] data = null;
+//        if (usernamePref.getText() != null && !usernamePref.getText().isEmpty() && passwordPref.getText() != null && !passwordPref.getText().isEmpty()) {
+//            data = new String[]{usernamePref.getText(), passwordPref.getText()};
+//        }
+//        return data;
     }
 
     private void openWeb(String url) {
@@ -275,22 +460,7 @@ public class SettingsActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
             Log.d("SettingsFragment", "onCreatePreferences");
-            // 设置 EditTextPreference 的 SummaryProvider
-            EditTextPreference usernamePref = findPreference("username");
-            if (usernamePref != null) {
-                usernamePref.setSummaryProvider(preference ->
-                        usernamePref.getText() == null || usernamePref.getText().isEmpty()
-                                ? "未填写用户名"
-                                : usernamePref.getText());
-            }
 
-            EditTextPreference passwordPref = findPreference("password");
-            if (passwordPref != null) {
-                passwordPref.setSummaryProvider(preference ->
-                        passwordPref.getText() == null || passwordPref.getText().isEmpty()
-                                ? "未填写密码"
-                                : "已填写密码");
-            }
 
             EditTextPreference serverBaseUrlPref = findPreference("server_base_url_input");
             if (serverBaseUrlPref != null) {
@@ -303,7 +473,7 @@ public class SettingsActivity extends AppCompatActivity {
                     if (UrlUtil.isUrl(newUrl)) {
                         Connected.setSetUrl(newUrl);
                     } else {
-                        if(FloatWindowService.instance != null){
+                        if (FloatWindowService.instance != null) {
                             FloatWindowService.instance.setText("输入的地址无效" + newUrl);
                         }
                         Toast.makeText(SettingsActivity.instance, "输入的地址无效" + newUrl, Toast.LENGTH_SHORT).show();
@@ -320,19 +490,35 @@ public class SettingsActivity extends AppCompatActivity {
             Preference authenticationPref = findPreference("authenticationBtn");
             if (authenticationPref != null) {
                 authenticationPref.setOnPreferenceClickListener(preference -> {
-                    //获取输入框的值
-                    String[] userAndPwd = instance.getUserAndPwd();
-                    if (SettingsActivity.instance.getUserAndPwd() == null) {
-                        Toast.makeText(getContext(), R.string.user_or_pdw_is_null, Toast.LENGTH_SHORT).show();
-                        return true;
+                    switch (LoginStates.loginState) {
+                        case NoLogin://登录
+                        case LoginExpired:
+                            SettingsActivity.instance.showLoad();
+                            SettingsActivity.instance.authManager.login(SettingsActivity.instance);
+                            break;
+                        case Login:
+                            ExecuteOperate.verifyConnection();
+                            break;
+
                     }
-                    SettingsActivity.instance.showLoad();
-                    //创建json 数据
-                    Map<String, Object> mapData = new HashMap<>();
-                    mapData.put("username", userAndPwd[0]);
-                    mapData.put("password", EncryptionTools.md5(userAndPwd[1]));
-                    String formData = HttpRequestUtil.convertMapToFormData(mapData);
-                    new Connected().execute(OptionsType.AUTHENTICATION, formData);
+                    return true;
+
+                });
+            }
+            Preference logoutPref = findPreference("logoutBtn");
+            if (logoutPref != null) {
+
+                logoutPref.setOnPreferenceClickListener(preference -> {
+                    //弹窗确认
+                    new AlertDialog.Builder(SettingsActivity.instance)
+                            .setTitle("注销")
+                            .setMessage("注销后，需要重新登录")
+                            .setPositiveButton("确定", (dialog, which) -> {
+                                SettingsActivity.instance.showLoad();
+                                SettingsActivity.instance.authManager.logout(SettingsActivity.instance);
+                            })
+                            .setNegativeButton("取消", null)
+                            .show();
                     return true;
                 });
             }
@@ -372,7 +558,7 @@ public class SettingsActivity extends AppCompatActivity {
                         }
                     } else {
                         runFunPref.setChecked(false);
-                        ApplyForPermission.showApplyForScreenshotPermission(SettingsActivity.instance,SettingsActivity.instance);
+                        ApplyForPermission.showApplyForScreenshotPermission(SettingsActivity.instance, SettingsActivity.instance);
                     }
                     return true;
                 });
@@ -383,7 +569,7 @@ public class SettingsActivity extends AppCompatActivity {
                     if ((boolean) newValue && SettingsActivity.instance.checkRunMode() == ApplyForPermission.PrivilegeLevel.USER) {
                         //提示用户授权截取屏幕、无障碍服务
                         feature_toggle.setChecked(true);
-                        ApplyForPermission.showApplyForScreenshotPermission(SettingsActivity.instance,SettingsActivity.instance);
+                        ApplyForPermission.showApplyForScreenshotPermission(SettingsActivity.instance, SettingsActivity.instance);
                     }
                     return true;
                 });
@@ -446,7 +632,7 @@ public class SettingsActivity extends AppCompatActivity {
                     return true;
                 });
             }
-            showApplyForScreenshotPermission(SettingsActivity.instance,SettingsActivity.instance);
+            showApplyForScreenshotPermission(SettingsActivity.instance, SettingsActivity.instance);
 
         }
     }
